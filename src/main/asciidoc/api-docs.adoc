@@ -1,0 +1,33 @@
+[[example_curl_request]]
+== Curl request
+
+include::{snippets}/index/curl-request.adoc[]
+
+[[example_http_request]]
+== HTTP request
+
+include::{snippets}/index/http-request.adoc[]
+
+[[example_http_response]]
+== HTTP response
+
+include::{snippets}/index/http-response.adoc[]
+
+
+[[example_request_body]]
+== request body
+
+include::{snippets}/index/request-body.adoc[]
+
+
+[[example_response_body]]
+== response body
+
+include::{snippets}/index/response-body.adoc[]
+
+
+[[example_response_fields]]
+== response fields
+
+include::{snippets}/index/response_fields.adoc[]
+
