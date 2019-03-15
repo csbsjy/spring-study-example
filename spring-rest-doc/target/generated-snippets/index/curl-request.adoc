@@ -1,0 +1,5 @@
+[source,bash]
+----
+$ curl 'http://localhost:8080/user' -i -X POST \
+    -d 'id=user1&name=username1&age=22&info=Is+this+Alright%3F'
+----

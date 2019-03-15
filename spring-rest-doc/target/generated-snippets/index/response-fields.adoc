@@ -1,0 +1,20 @@
+|===
+|Path|Type|Description
+
+|`+id+`
+|`+String+`
+|The Board's number
+
+|`+name+`
+|`+String+`
+|The Board's title
+
+|`+age+`
+|`+Number+`
+|The Board's contents
+
+|`+info+`
+|`+String+`
+|The Board's writeName
+
+|===
