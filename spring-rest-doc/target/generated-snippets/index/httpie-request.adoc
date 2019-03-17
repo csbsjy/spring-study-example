@@ -1,6 +1,6 @@
 [source,bash]
 ----
-$ http --form POST 'http://localhost:8080/user' \
+$ http --form POST 'https://example.com/user' \
     'id=user1' \
     'name=username1' \
     'age=22' \

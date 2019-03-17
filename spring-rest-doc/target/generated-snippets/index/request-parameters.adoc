@@ -1,0 +1,16 @@
+|===
+|Parameter|Description
+
+|`+id+`
+|User's id
+
+|`+name+`
+|User's name
+
+|`+age+`
+|User's age
+
+|`+info+`
+|User's info
+
+|===

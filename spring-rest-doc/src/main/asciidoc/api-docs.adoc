@@ -1,33 +1,53 @@
-[[example_curl_request]]
-== Curl request
+= Sample Project API 명세 (Spring REST Docs)
 
-include::{snippets}/index/curl-request.adoc[]
+== getUserInfoById
 
-[[example_http_request]]
-== HTTP request
+=== Curl request
 
-include::{snippets}/index/http-request.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/curl-request.adoc[]
 
-[[example_http_response]]
-== HTTP response
+=== HTTP request
 
-include::{snippets}/index/http-response.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-request.adoc[]
 
+=== HTTP response
 
-[[example_request_body]]
-== request body
-
-include::{snippets}/index/request-body.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-response.adoc[]
 
 
-[[example_response_body]]
-== response body
+=== request body
 
-include::{snippets}/index/response-body.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/request-body.adoc[]
 
 
-[[example_response_fields]]
-== response fields
+=== response body
 
-include::{snippets}/index/response_fields.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/response-body.adoc[]
+
+
+
+== CreateUserByUserModel
+
+=== Curl request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/curl-request.adoc[]
+
+=== HTTP request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-response.adoc[]
+
+
+=== request body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/request-body.adoc[]
+
+
+=== response body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/response-body.adoc[]
+
 

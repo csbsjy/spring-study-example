@@ -5,7 +5,7 @@
 <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge"><![endif]-->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="generator" content="Asciidoctor 1.5.3">
-<title>Curl request</title>
+<title>Sample Project API 명세 (Spring REST Docs)</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,400italic,600,600italic%7CNoto+Serif:400,400italic,700,700italic%7CDroid+Sans+Mono:400,700">
 <style>
 /* Asciidoctor default stylesheet | MIT License | http://asciidoctor.org */
@@ -419,36 +419,85 @@ body.book #toc,body.book #preamble,body.book h1.sect0,body.book .sect1>h2{page-b
 </head>
 <body class="book">
 <div id="header">
+<h1>Sample Project API 명세 (Spring REST Docs)</h1>
 </div>
 <div id="content">
 <div class="sect1">
-<h2 id="example_curl_request">Curl request</h2>
+<h2 id="_getuserinfobyid">getUserInfoById</h2>
 <div class="sectionbody">
+<div class="sect2">
+<h3 id="_curl_request">Curl request</h3>
 <div class="listingblock">
 <div class="content">
-<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl 'http://localhost:8080/user' -i -X POST \
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl 'https://example.com/user/user1' -i -X GET</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_request">HTTP request</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">GET /user/user1 HTTP/1.1
+Host: example.com</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_http_response">HTTP response</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
+Content-Type: application/json;charset=UTF-8
+Content-Length: 68
+
+{"id":"user1","name":"User1","age":25,"info":"This is Test User!!!"}</code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_request_body">request body</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code></code></pre>
+</div>
+</div>
+</div>
+<div class="sect2">
+<h3 id="_response_body">response body</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight nowrap"><code>{"id":"user1","name":"User1","age":25,"info":"This is Test User!!!"}</code></pre>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="sect1">
+<h2 id="_createuserbyusermodel">CreateUserByUserModel</h2>
+<div class="sectionbody">
+<div class="sect2">
+<h3 id="_curl_request_2">Curl request</h3>
+<div class="listingblock">
+<div class="content">
+<pre class="highlight"><code class="language-bash" data-lang="bash">$ curl 'https://example.com/user' -i -X POST \
     -d 'id=user1&amp;name=username1&amp;age=22&amp;info=Is+this+Alright%3F'</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="example_http_request">HTTP request</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_request_2">HTTP request</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">POST /user HTTP/1.1
-Host: localhost:8080
+Host: example.com
 Content-Type: application/x-www-form-urlencoded
 
 id=user1&amp;name=username1&amp;age=22&amp;info=Is+this+Alright%3F</code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="example_http_response">HTTP response</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_http_response_2">HTTP response</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code class="language-http" data-lang="http">HTTP/1.1 200 OK
@@ -459,20 +508,16 @@ Content-Length: 68
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="example_request_body">request body</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_request_body_2">request body</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code></code></pre>
 </div>
 </div>
 </div>
-</div>
-<div class="sect1">
-<h2 id="example_response_body">response body</h2>
-<div class="sectionbody">
+<div class="sect2">
+<h3 id="_response_body_2">response body</h3>
 <div class="listingblock">
 <div class="content">
 <pre class="highlight nowrap"><code>{"id":"user1","name":"username1","age":22,"info":"Is this Alright?"}</code></pre>
@@ -480,18 +525,11 @@ Content-Length: 68
 </div>
 </div>
 </div>
-<div class="sect1">
-<h2 id="example_response_fields">response fields</h2>
-<div class="sectionbody">
-<div class="paragraph">
-<p>Unresolved directive in api-docs.adoc - include::../../../target/generated-snippets/index/response_fields.adoc[]</p>
-</div>
-</div>
 </div>
 </div>
 <div id="footer">
 <div id="footer-text">
-Last updated 2019-03-15 23:53:36 KST
+Last updated 2019-03-18 00:00:38 KST
 </div>
 </div>
 </body>

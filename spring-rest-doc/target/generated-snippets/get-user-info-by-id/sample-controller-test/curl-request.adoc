@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ curl 'https://example.com/user/user1' -i -X GET
+----

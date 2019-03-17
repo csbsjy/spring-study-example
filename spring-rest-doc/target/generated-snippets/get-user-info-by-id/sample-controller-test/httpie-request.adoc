@@ -1,0 +1,4 @@
+[source,bash]
+----
+$ http GET 'https://example.com/user/user1'
+----

@@ -414,7 +414,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.restdocs.JUnitRestDocumentation;
 import org.springframework.test.context.junit4.SpringRunner;
@@ -425,12 +424,14 @@ import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.document;
 import static org.springframework.restdocs.mockmvc.MockMvcRestDocumentation.documentationConfiguration;
-import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
-import static org.springframework.restdocs.payload.PayloadDocumentation.responseFields;
+import static org.springframework.restdocs.payload.PayloadDocumentation.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.restdocs.request.RequestDocumentation.requestParameters;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
+
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = DemoApplication.class)
@@ -445,13 +446,15 @@ public class SampleControllerTest {
 
     private MockMvc mockMvc;
 
+
     @Autowired
     private WebApplicationContext context;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.context)
                 .apply(documentationConfiguration(this.restDocumentation))
+                .alwaysDo(document("{method-name}/{class-name}"))
                 .build();
     }
 
@@ -480,22 +483,33 @@ public class SampleControllerTest {
                                 .param("info", "Is this Alright?"))
                             .andDo(print())
                             .andExpect(status().isOk())
-                            .andDo(document("index",
-                                responseFields(
-                                    fieldWithPath("id").description("The Board's number"),
-                                    fieldWithPath("name").description("The Board's title"),
-                                    fieldWithPath("age").description("The Board's contents"),
-                                    fieldWithPath("info").description("The Board's writeName")
+                            .andDo(document("index",requestParameters(
+                                    parameterWithName("id").description("User's id"),
+                                    parameterWithName("name").description("User's name"),
+                                    parameterWithName("age").description("User's age"),
+                                    parameterWithName("info").description("User's info")),
+                                    responseFields(
+                                        fieldWithPath("id").description("The Board's number"),
+                                        fieldWithPath("name").description("The Board's title"),
+                                        fieldWithPath("age").description("The Board's contents"),
+                                        fieldWithPath("info").description("The Board's writeName")
                                 )
                             ));
+
 
 
     }
 }
 
+
+
+
+
 ```
 
 
+
+(1) 테스팅 결과로 나오는 파일을 명명 규칙을 지정한다. 해당 설정을 해주면 generated-snippets/{method-name}/{class-name} 디렉토리가 생성되고 그 아래 adoc파일이 생성된다. 
 
 여기에서
 
@@ -518,56 +532,80 @@ fieldWithPath("응답데이터").description("설명")
 
 그 후, <u>테스트가 정상적으로 성공한다면</u> target 디렉토리에 다음과 같은 폴더들이 생성된다.
 
-![image-20190315234609652](https://github.com/csbsjy/spring-study-example/blob/master/assets/SpringRESTDocs-1.png?raw=true)
+![image-20190317234639922](/Users/seojaeyeon/IdeaProjects/assets/SpringRESTDocs-1.png)
 
 
-
-index아래 생성된 adoc파일을 기반으로 REST Docs를 작성할 수 있는데, 그 전에 asciidoc 문서 하나가 필요하다.
 
 
 
 **src/main아래에 asciidoc 폴더를 생성하고 api-docs.adoc 라는 파일을 하나 생성한 뒤 다음과 같이 입력한다.**
 
-(예쁘게 문서를 작성하고싶으면 asciidoc 문법을 공부하면 되는데, 굳이 그러고 싶지 않으니까 sample을 가져다썼다. 혹시 더 하고싶다면 <https://docs.spring.io/spring-restdocs/docs/2.0.3.RELEASE/reference/html5/#working-with-asciidoctor> 링크 참고)
+
+
+asciidoc 문법은 <https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/> 에서 볼 수 있다. 마크다운이랑 비슷한 수준인 것 같다.
+
+
 
 **src/main/asciidoc/api-docs.adoc**
 
 ```asciiarmor
-[[example_curl_request]]
-== Curl request
+= Sample Project API 명세 (Spring REST Docs)
 
-include::{snippets}/index/curl-request.adoc[]
+== getUserInfoById
 
-[[example_http_request]]
-== HTTP request
+=== Curl request
 
-include::{snippets}/index/http-request.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/curl-request.adoc[]
 
-[[example_http_response]]
-== HTTP response
+=== HTTP request
 
-include::{snippets}/index/http-response.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-request.adoc[]
 
+=== HTTP response
 
-[[example_request_body]]
-== request body
-
-include::{snippets}/index/request-body.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-response.adoc[]
 
 
-[[example_response_body]]
-== response body
+=== request body
 
-include::{snippets}/index/response-body.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/request-body.adoc[]
 
 
-[[example_response_fields]]
-== response fields
+=== response body
 
-include::{snippets}/index/response-fields.adoc[]
+include::{snippets}/get-user-info-by-id/sample-controller-test/response-body.adoc[]
+
+
+
+== CreateUserByUserModel
+
+=== Curl request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/curl-request.adoc[]
+
+=== HTTP request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-response.adoc[]
+
+
+=== request body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/request-body.adoc[]
+
+
+=== response body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/response-body.adoc[]
+
 
 
 ```
+
+
 
 
 
@@ -581,9 +619,7 @@ include::{snippets}/index/response-fields.adoc[]
 
 이제 서버를 기동시키고 localhost:port/docs/api-docs.html 을 접속해보자.
 
-![image-20190315235903918](https://github.com/csbsjy/spring-study-example/blob/master/assets/SpringRESTDocs-2.png?raw=true)
-
-
+![image-20190318000719794](/Users/seojaeyeon/IdeaProjects/assets/SpringRESTDocs-2.png)
 
 -끝-
 
