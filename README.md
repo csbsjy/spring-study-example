@@ -532,7 +532,7 @@ fieldWithPath("응답데이터").description("설명")
 
 그 후, <u>테스트가 정상적으로 성공한다면</u> target 디렉토리에 다음과 같은 폴더들이 생성된다.
 
-![image-20190317234639922](/Users/seojaeyeon/IdeaProjects/assets/SpringRESTDocs-1.png)
+![image-20190317234639922](https://github.com/csbsjy/spring-study-example/blob/master/assets/SpringRESTDocs-1.png?raw=true)
 
 
 
@@ -619,7 +619,7 @@ include::{snippets}/create-user-by-user-model/sample-controller-test/response-bo
 
 이제 서버를 기동시키고 localhost:port/docs/api-docs.html 을 접속해보자.
 
-![image-20190318000719794](/Users/seojaeyeon/IdeaProjects/assets/SpringRESTDocs-2.png)
+![image-20190318000719794](https://github.com/csbsjy/spring-study-example/blob/master/assets/SpringRESTDocs-2.png?raw=true)
 
 -끝-
 
