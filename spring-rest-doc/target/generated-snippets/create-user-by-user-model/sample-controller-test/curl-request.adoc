@@ -1,0 +1,5 @@
+[source,bash]
+----
+$ curl 'https://example.com/user' -i -X POST \
+    -d 'id=user1&name=username1&age=22&info=Is+this+Alright%3F'
+----

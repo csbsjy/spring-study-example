@@ -1,0 +1,53 @@
+= Sample Project API 명세 (Spring REST Docs)
+
+== getUserInfoById
+
+=== Curl request
+
+include::{snippets}/get-user-info-by-id/sample-controller-test/curl-request.adoc[]
+
+=== HTTP request
+
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/get-user-info-by-id/sample-controller-test/http-response.adoc[]
+
+
+=== request body
+
+include::{snippets}/get-user-info-by-id/sample-controller-test/request-body.adoc[]
+
+
+=== response body
+
+include::{snippets}/get-user-info-by-id/sample-controller-test/response-body.adoc[]
+
+
+
+== CreateUserByUserModel
+
+=== Curl request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/curl-request.adoc[]
+
+=== HTTP request
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-request.adoc[]
+
+=== HTTP response
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/http-response.adoc[]
+
+
+=== request body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/request-body.adoc[]
+
+
+=== response body
+
+include::{snippets}/create-user-by-user-model/sample-controller-test/response-body.adoc[]
+
+

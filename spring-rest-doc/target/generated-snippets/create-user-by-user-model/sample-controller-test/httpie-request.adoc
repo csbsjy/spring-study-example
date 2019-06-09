@@ -1,0 +1,8 @@
+[source,bash]
+----
+$ http --form POST 'https://example.com/user' \
+    'id=user1' \
+    'name=username1' \
+    'age=22' \
+    'info=Is this Alright?'
+----

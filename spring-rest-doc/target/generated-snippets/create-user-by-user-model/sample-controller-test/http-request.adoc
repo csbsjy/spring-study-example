@@ -1,0 +1,8 @@
+[source,http,options="nowrap"]
+----
+POST /user HTTP/1.1
+Host: example.com
+Content-Type: application/x-www-form-urlencoded
+
+id=user1&name=username1&age=22&info=Is+this+Alright%3F
+----
