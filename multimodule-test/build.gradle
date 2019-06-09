@@ -19,11 +19,6 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    annotationProcessor 'org.projectlombok:lombok'
-    testImplementation 'org.springframework.boot:spring-boot-starter-test'
-}
-
 subprojects {
 
     apply plugin: 'java'
@@ -55,3 +50,9 @@ project(':module-web') {
     }
 }
 
+
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}

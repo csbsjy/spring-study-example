@@ -2,6 +2,7 @@ plugins {
     id 'java'
 }
 
+
 group 'com.multi-module'
 version '0.0.1-SNAPSHOT'
 
@@ -12,8 +13,7 @@ repositories {
 }
 
 dependencies {
-    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
-    runtime('com.h2database:h2')
+    compile('org.springframework.boot:spring-boot-starter-web')
     testCompile('org.springframework.boot:spring-boot-starter-test')
     implementation 'org.projectlombok:lombok'
 }
