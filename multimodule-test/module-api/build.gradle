@@ -12,8 +12,8 @@ repositories {
 }
 
 dependencies {
-    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    implementation('org.springframework.boot:spring-boot-starter-data-jpa')
     runtime('com.h2database:h2')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    annotationProcessor 'org.projectlombok:lombok'
+    implementation 'org.projectlombok:lombok'
 }
