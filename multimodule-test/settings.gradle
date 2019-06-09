@@ -1,0 +1,10 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+    }
+}
+rootProject.name = 'multimodule-test'
+include 'module-api'
+include 'module-common'
+include 'module-web'
+
