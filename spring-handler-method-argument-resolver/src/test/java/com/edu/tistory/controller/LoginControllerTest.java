@@ -20,29 +20,29 @@ import com.edu.tistory.SpringFoApplication;
 
 import lombok.extern.slf4j.Slf4j;
 
-@SpringBootTest(classes=SpringFoApplication.class)
+@SpringBootTest(classes = SpringFoApplication.class)
 @RunWith(SpringRunner.class)
 @WebAppConfiguration
 @Slf4j
 public class LoginControllerTest {
-	
-	@Autowired
-	private WebApplicationContext wac;
-	
-	private MockMvc mock;
-	
-	@Before
-	public void beforeTest() {
-		mock=MockMvcBuilders.webAppContextSetup(wac).build();
-	}
 
-	@Test
-	public void test() throws Exception {
-		this.mock.perform(get("/login/manager")
-				.param("userId","ccc")
-				)
-		.andDo(print())
-		.andExpect(status().is4xxClientError());
-	}
+    @Autowired
+    private WebApplicationContext wac;
+
+    private MockMvc mock;
+
+    @Before
+    public void beforeTest() {
+        mock = MockMvcBuilders.webAppContextSetup(wac).build();
+    }
+
+    @Test
+    public void test() throws Exception {
+        this.mock.perform(get("/login/manager")
+                .param("userId", "ccc")
+        )
+                .andDo(print())
+                .andExpect(status().is4xxClientError());
+    }
 
 }

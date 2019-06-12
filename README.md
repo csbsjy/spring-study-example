@@ -636,11 +636,423 @@ Swagger에 비해 훨씬 복잡하고 test를 하나하나 작성해야 문서�
 
 
 
-## Multi modul in Spring Project
+## Multi module in Spring Project
 
 참고링크
 
 https://jojoldu.tistory.com/123
 
 
+
+**멀티모듈?**
+
+> 일반적인 프로젝트는 다수의 프로젝트 폴더의 집합으로 구성된다.
+>
+> 이때, 여러 프로젝트에서 사용되는 모듈이 있을 수 있는데 공통의 모듈을 root project에서 다른 subproject에 포함시킬 수 있다.
+>
+> 공통의 모듈을 복사/붙여넣지 않고 include 하여 사용함으로써 코드의 중복을 줄일 수 있고 변경 시 해당 공통 모듈만 변경하면 되기 때문에 human-error를 방지할 수 있다.
+
+
+
+**Environment**
+
+> IntelliJ
+>
+> Java 8
+>
+> Gradle
+>
+> Spring boot 2.1.5
+
+
+
+
+
+> 로그인 기능을 구현한다.
+>
+> Account 클래스는 API에서도, Fo에서도 사용되는 Entity이다.
+>
+> Account 클래스를 공통 모듈로 구성하고 API와 Fo 모두에서 사용한다.
+>
+> root project를 빌드하고 실행한다.
+
+
+
+**1. root Project 생성**
+
+![image-20190609233110119](./assets/spring-multimodule-1.png)
+
+
+
+
+
+**2. module project생성**
+
+root project에서 new > Module 을 통해 모듈 프로젝트를 추가할 수 있다(IntelliJ 기준)
+
+(주의할 점은 spring initializer로 모듈을 추가하는 것이 아닌 gradle 로 추가해야한다는 점. 이것 때문에 생난리난리퓨)
+
+공통모듈인 core 프로젝트, api 프로젝트, fo 프로젝트를 생성한다.
+
+ 
+
+>  package 구조
+
+![image-20190610020134233](./assets/spring-multimodule-2.png)
+
+
+
+gradle module을 추가하면 자동적으로 settings.gradle이 하단과 같이 변경된다.
+
+```
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+}
+rootProject.name = 'root-project'
+include 'module-api'
+include 'module-core'
+include 'module-fo'
+```
+
+
+
+
+
+<u>api module 은  service 관련 로직만 포함하기 때문에</u>
+
+```
+dependencies {
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    implementation 'org.projectlombok:lombok'
+}
+```
+
+
+
+<u>fo module은 controller 작성 용도로만 사용하기 때문에</u>
+
+```
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
+```
+
+
+
+<u>core module 은 jpa, lombok, h2를 추가해주었다.</u>
+
+```
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    runtime('com.h2database:h2')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    implementation 'org.projectlombok:lombok'
+}
+```
+
+
+
+
+
+**3. core 모듈 Account Class와 Respository 작성**
+
+
+
+<u>Account.java</u>
+
+```java
+package com.multimodule.core;
+
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@Getter
+@Entity
+public class Account {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    private Long id;
+
+    private String userName;
+
+    private String password;
+
+    @Builder
+    public Account(String userName, String password) {
+        this.userName = userName;
+        this.password = password;
+    }
+
+}
+
+```
+
+
+
+<u>AccountRepository.java</u>
+
+```java
+package com.multimodule.core;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+public interface AccountRepository extends JpaRepository<Account, Long> {
+}
+
+```
+
+
+
+**4. 위의 공통모듈을 다른 하위 모듈에 include 시키기 위해 root project 의 build.gradle을 수정한다.**
+
+```
+plugins {
+    id 'org.springframework.boot' version '2.1.5.RELEASE'
+    id 'java'
+}
+
+apply plugin: 'io.spring.dependency-management'
+
+group = 'com.multi-module'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '1.8'
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+subprojects {
+
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
+    sourceCompatibility = 1.8
+
+    repositories {
+        mavenCentral()
+    }
+    
+    dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+}
+
+project(':module-api') {
+    dependencies {
+        compile project(':module-core')
+    }
+}
+
+project(':module-fo') {
+    dependencies {
+        compile project(':modudle-core')
+    }
+}
+```
+
+
+
+subproject의 사항들이 모두 하위 모듈에 적용된다.
+
+
+
+```
+apply plugin: 'org.springframework.boot'
+```
+
+위 설정을 통해 각 프로젝트가 spring boot 의존성을 가질 수 있도록 한다.(현재는 gradle 프로젝트이기 때문에)
+
+
+
+또, 
+
+```
+ dependencies {
+        testCompile group: 'junit', name: 'junit', version: '4.12'
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        annotationProcessor 'org.projectlombok:lombok'
+    }
+```
+
+subproejct dependencies에 공통적으로 포함되는 의존을 기입함으로써 중복코드를 줄일 수도 있다.
+
+모든 모듈에 공통적으로 필요한 세 의존을 기입했다.
+
+
+
+마지막으로,
+
+```
+project(':module-api') {
+    dependencies {
+        compile project(':module-core')
+    }
+}
+
+project(':module-fo') {
+    dependencies {
+        compile project(':modudle-core')
+    }
+}
+```
+
+설정을 통해 공통 모듈을 두 모듈에 주입시켜준다.
+
+
+
+
+
+**5. API에 Service class 생성**
+
+공통모듈을 사용할 수 있는 상태가 되었으니 multimodule-api 프로젝트에서 service 클래스를 구현한다.
+
+
+
+<u>MemberService.java</u>
+
+```java
+package com.module.api.service;
+
+
+import com.module.common.domain.Member;
+import com.module.common.domain.MemberRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+
+@Service
+@AllArgsConstructor
+public class MemberService {
+
+    private MemberRepository memberRepository;
+
+    public Long signUp(Member member) {
+        return memberRepository.save(member).getId();
+    }
+
+}
+```
+
+~~memberRepository의 메서드가 제대로 적용이안되면 core의 dependency를 확인해보자.~~
+
+~~lombok 의존이 complieOnly라면 implementation으로 변경하고 저장하고 다시 확인해보자.~~
+
+
+
+**6. FoController 생성**
+
+테스트 용이기에 약간 이상하긴하지만,
+
+
+
+```java
+package com.module.fo.controller;
+
+import com.module.core.domain.Account;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class FoController {
+    @GetMapping("/")
+    public Account signUp(){
+        Account account = Account.builder()
+                .userName("user1")
+                .password("password")
+                .build();
+
+        return account;
+    }
+}
+
+```
+
+
+
+
+
+
+
+
+
+모든 프로젝트 생성이 끝났다.
+
+이제 전체 프로젝트를 빌드하기전에 
+
+module-fo와 module-api는 서버를 띄워야하기 때문에 main클래스가 필요하지만 module-core은 말그대로 공통 클래스인 Account와 AccountRepository만을 포함한다. 즉, 서버를 띄울필요가 없다.
+
+따라서 하단의 설정을 module-core의 build.gradle에 추가함으로써 main클래스 없이도 빌드가 가능하도록 한다.
+
+
+
+```
+bootJar.enabled=false
+jar.enabled=true
+```
+
+
+
+
+
+
+
+**7. 전체프로젝트 빌드와 에러에러에러에러**
+
+
+
+dependency complie이 꼬이는지 어째는지 계속 됐다가 안됐다가 
+
+특히나 module-api에서 AccountRepository bean creating error가 나다가 안나다가 난리여서 한참 헤맸다.
+
+
+
+module-api에 spring-data-jpa 의존을 추가하고,
+
+main 클래스를 다음과 같이 바꿔준다
+
+```java
+package com.module.api;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+
+@SpringBootApplication
+@EnableJpaRepositories(basePackages = {"com.module.core.domain"})
+@EntityScan(basePackages = {"com.module.core.domain"})
+public class ModuleApiApplication {
+    public static void main(String[] args){
+        SpringApplication.run(ModuleApiApplication.class, args);
+    }
+}
+
+```
+
+
+
+Repository와 Entity 를 명시해주었더니 위와같은 에러가 나지 않고 정상적으로 빌드되었다.
 

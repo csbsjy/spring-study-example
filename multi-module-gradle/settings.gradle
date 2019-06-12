@@ -1,0 +1,8 @@
+pluginManagement {
+	repositories {
+		gradlePluginPortal()
+	}
+}
+rootProject.name = 'root'
+include 'module-core', 'module-api', 'module-fo'
+

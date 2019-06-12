@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class SampleController {
 
     @GetMapping("/user/{id}")
-    public ResponseEntity<User> getUserInfoById(@PathVariable("id") String id){
+    public ResponseEntity<User> getUserInfoById(@PathVariable("id") String id) {
         User user = new User();
         user.setId(id);
         user.setName("User1");
@@ -22,7 +22,7 @@ public class SampleController {
     }
 
     @PostMapping(value = "/user", produces = "application/json")
-    public ResponseEntity<User> createUserByUserModel(User user){
+    public ResponseEntity<User> createUserByUserModel(User user) {
         return new ResponseEntity<>(user, HttpStatus.OK);
     }
 }

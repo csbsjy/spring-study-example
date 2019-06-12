@@ -1,0 +1,28 @@
+plugins {
+    id 'java'
+}
+
+group 'com.module'
+version '0.0.1-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+bootJar{
+    enabled=false
+}
+jar{
+    enabled=true
+}
+
+
+dependencies {
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile('com.h2database:h2')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+    compile 'org.projectlombok:lombok'
+    compile group: 'org.hibernate', name: 'hibernate-entitymanager', version: '5.4.3.Final'
+}
