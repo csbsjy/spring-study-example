@@ -1023,15 +1023,15 @@ jar.enabled=true
 
 
 
-dependency complie이 꼬이는지 어째는지 계속 됐다가 안됐다가 
+~~dependency complie이 꼬이는지 어째는지 계속 됐다가 안됐다가~~ 
 
-특히나 module-api에서 AccountRepository bean creating error가 나다가 안나다가 난리여서 한참 헤맸다.
+~~특히나 module-api에서 AccountRepository bean creating error가 나다가 안나다가 난리여서 한참 헤맸다.~~
 
 
 
-module-api에 spring-data-jpa 의존을 추가하고,
+~~module-api에 spring-data-jpa 의존을 추가하고,~~
 
-main 클래스를 다음과 같이 바꿔준다
+~~main 클래스를 다음과 같이 바꿔준다~~
 
 ```java
 package com.module.api;
@@ -1054,5 +1054,15 @@ public class ModuleApiApplication {
 
 
 
-Repository와 Entity 를 명시해주었더니 위와같은 에러가 나지 않고 정상적으로 빌드되었다.
+~~Repository와 Entity 를 명시해주었더니 위와같은 에러가 나지 않고 정상적으로 빌드되었다.~~
+
+
+
+++ 는 잘못된 해결책이었음!
+
+api 패키지가 com.module.api부터 시작하고 메인이 그 아래에 있어서
+
+com.module.core 아래의 bean들을 읽지 못하는 것이었다.
+
+api main을 com.module로 이동시키고 나니 정상적으로 수행되었다:) 
 
