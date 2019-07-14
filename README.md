@@ -1118,7 +1118,7 @@ back-end건, front-end건 의존성 분리에 대한 집착? 강박?은 점점 �
 
 공식 홈페이지의 자료를 인용하면,
 
-![image-20190714184217532](/Users/seojaeyeon/git/spring-study-example/assets/webpack-6.png)
+![image-20190714184217532](./assets/webpack-6.png)
 
 
 
@@ -1240,7 +1240,7 @@ npm install -g webpack
 npm install --save-dev webpack
 ```
 
-![image-20190714190232298](/Users/seojaeyeon/git/spring-study-example/assets/webpack-5.png)
+![image-20190714190232298](./assets/webpack-5.png)
 
 위와같이 별 다른 에러가 없으면 설치 성공! 
 
@@ -1286,7 +1286,7 @@ npm install webpack-dev-server webpack-cli --save
 
 **requestApi.js**
 
-![image-20190714190559637](/Users/seojaeyeon/git/spring-study-example/assets/webpack-4.png)
+![image-20190714190559637](./assets/webpack-4.png)
 
 작성 전에 이와 같은 error 가 발생하면 preferences > Languages & Frameworks -> javascript 에서 버전을 ECMAScript 6로 바꿔준다.  
 
@@ -1388,7 +1388,7 @@ start 명령어를 수행하면 dev 명령어가 실행되니 이제 터미널�
 
 정상적으로 수행이 되었다면, 설정한 path 아래
 
-![image-20190714201127624](/Users/seojaeyeon/git/spring-study-example/assets/webpack-3.png)
+![image-20190714201127624](./assets/webpack-3.png)
 
 가 보인다. 이제 이 파일을 html에 include 시킨다. 
 
@@ -1402,7 +1402,7 @@ start 명령어를 수행하면 dev 명령어가 실행되니 이제 터미널�
 
 ### 6. spring project 실행 후, 해당 웹페이지에 접속
 
-![image-20190714201442867](/Users/seojaeyeon/git/spring-study-example/assets/webpack-2.png)
+![image-20190714201442867](./assets/webpack-2.png)
 
 
 
@@ -1436,7 +1436,7 @@ export default function requestApi(){
 }
 ```
 
-![image-20190714201652164](/Users/seojaeyeon/git/spring-study-example/assets/webpack-1.png)
+![image-20190714201652164](./assets/webpack-1.png)
 
 
 
