@@ -10,6 +10,7 @@
 * 2019-03-10 --- [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
 * 2019-03-16 --- [Spring REST Docs](#spring-rest-docs)
 * 2019-06-09 --- [Multi-Module in Spring Project](#multi-module-in-spring-project)
+* 2019-07-14 --- [Webpack in Spring boot Project](#webpack)
 
 ---
 
@@ -104,7 +105,8 @@ public class LoginUserResolver implements HandlerMethodArgumentResolver{
 	@Override
 	public boolean supportsParameter(MethodParameter parameter) {
 		//parameter가 User Type인지 체크 
-		return parameter.getParameterType().isAssignableFrom(User.class);
+		return parameter.getParameterType().isAssignableFrom(User.class) 
+      && parameter.hasParameterAnnotation(Auth.class);
 	}
 
 	@Override
@@ -1066,3 +1068,398 @@ com.module.core 아래의 bean들을 읽지 못하는 것이었다.
 
 api main을 com.module로 이동시키고 나니 정상적으로 수행되었다:) 
 
+
+
+---
+
+# Webpack
+
+
+
+회사에서 Spring boot + html(Thymeleaf) 기반의 웹을 개발하고 있었는데, js 코드를 보고 어떤 분이 요즘은 module화를 많이 한다더라, Webpack이라고 아니? 라고 말은 던져주셨다. 
+
+예전에 학교에서 node.js 수업을 들어본 적이 있어서 module이라는 개념에는 익숙했고, 한번 공부해보자하고 잊고 살다가 최근 또 dashboard 개발 업무를 맡으면서 이번엔 적용해보자 하며 공부를 시작했다.
+
+공부라기에는 하루 반나절(ㅎㅎ)이라는 짧은 시간이었고, 간단하게 기록기를 남겨보고자 한다.
+
+
+
+우선 개발 환경은 다음과 같다.
+
+> IntelliJ
+>
+> Spring boot + Maven(언제쯤 Gradle로 갈아탈까 ,, 우리회사,,)
+>
+> Javscript(ES6)
+>
+> npm 6.4.1
+>
+> webpack 4.xx
+>
+> thymeleaf
+
+
+
+
+
+## Webpack 이란? 
+
+webpack 공식 홈페이지(https://webpack.js.org/)에 들어가보면 대문짝만하게 
+
+**bundle your scripts, bundle your images, bundle your styles, bundle your assets**
+
+이라고 적혀있다. 즉, 사용자 custom static자원들을 bundling 해주는 도구라고 유추할 수 있다.
+
+
+
+back-end건, front-end건 의존성 분리에 대한 집착? 강박?은 점점 심해지고 있고, Webpack 또 그러한 흐름 속에 생긴게 아닌가 싶다. 
+
+
+
+공식 홈페이지의 자료를 인용하면,
+
+![image-20190714184217532](/Users/seojaeyeon/git/spring-study-example/assets/webpack-6.png)
+
+
+
+bar.js와 같이 각각의 기능(또는 다른 단위)으로 분리된 모듈을 사용하는 index.js라는 메인 자바스크립트가 있다. 
+
+webpack을 이용해 번들링할 때 참고하는 config파일이 바로 webpack.config.js 인데(세번째 그림), entry에 해당하는 메인 자바스크립트의 구조를 모두 분석하여 import된 모듈까지 자동으로 번들링해준다. 
+
+최종적으로 만들어진 output은 html에서 사용될 수 있다.
+
+
+
+
+
+------
+
+
+
+간단하게 웹페이지를 하나 만들어보려고 한다.
+
+html은 빈 화면이고, webpack bundle을 통해 로딩과 동시에 Ajax 호출을 시도한다.
+
+Ajax 응답 성공 시, Success 메시지가, 실패시 Fail 메시지가 html 에 추가되도록 구현한다.
+
+
+
+### 1. 프로젝트 생성(IntelliJ, Spring initializer, maven)
+
+간단하게 spring-boot-starter-web과 lombok, thymeleaf만 추가해주었다. 
+
+
+
+**index.html**
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Spring boot + Webpack</title>
+</head>
+<body>
+    <div id="webpackIsOk"></div>
+</body>
+</html>
+```
+
+
+
+**Webconfig.class**
+
+```java
+package com.webpack.example.config;
+
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+@Configuration
+public class WebConfig implements WebMvcConfigurer {
+    @Override
+    public void addViewControllers(ViewControllerRegistry registry) {
+        registry.addViewController("/").setViewName("index");
+    }
+}
+```
+
+
+
+**ApiController.class** 뭔가 이상한 듯 하지만 예제니 넘어가기 ,,
+
+```java
+package com.webpack.example.controller;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+public class ApiController {
+
+    @GetMapping("/api")
+    public ResponseEntity<String> isOk(){
+        return new ResponseEntity<>("Success", HttpStatus.OK);
+    }
+
+    @DeleteMapping("/api")
+    public ResponseEntity<String> isBad(){
+        return new ResponseEntity<>("Fail", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+    
+}
+```
+
+
+
+
+
+### 2. Webpack 설치 및 프로젝트에 추가
+
+기본적인 세팅은 끝났고 이제 javascript 단을 만져야하니 webpack 을 설치해본다.
+
+npm 설정은 이미 완료되어있다고 가정하고, 
+
+
+
+**1) 현 위치에서 npm init 명령을 실행한다.**
+
+
+
+**2) 이제 webpack 을 설치한다.**
+
+
+
+아래 두 방법으로 설치할 수 있다. 위에는 전역(모든 곳에서 사용할 수 있음), 아래는 현재 디렉터리에서만 이용가능.
+
+```js
+npm install -g webpack
+npm install --save-dev webpack
+```
+
+![image-20190714190232298](/Users/seojaeyeon/git/spring-study-example/assets/webpack-5.png)
+
+위와같이 별 다른 에러가 없으면 설치 성공! 
+
+
+
+package.json 에 
+
+```json
+ "devDependencies": {
+    "webpack": "^4.35.3"
+  },
+```
+
+가 제대로 추가되었다면, 이제 Webpack 을 적용할 수 있다.
+
+
+
+
+
+webpack을 통해 bundling하기 위해서는 webpack CLI와 webpack-dev-server를 설치해야하는데, 
+
+cli는 배포 빌드할 때, webpack-dev-server는 개발 시 사용하기에 적절하다. 자세한 내용은
+
+(https://github.com/FEDevelopers/tech.description/wiki/Webpack%EC%9D%98-%ED%98%BC%EB%9E%80%EC%8A%A4%EB%9F%B0-%EC%82%AC%ED%95%AD%EB%93%A4)를 확인하는 것이 좋을 듯 하다.
+
+
+
+다음 명령어를 통해 추가로 설치한다.
+
+```xml
+npm install webpack-dev-server webpack-cli --save
+```
+
+
+
+
+
+
+
+### 3. JS 모듈 구성
+
+**1) resources/static/js 디렉터리 아래에 Ajax Call method를 작성한다.**
+
+**requestApi.js**
+
+![image-20190714190559637](/Users/seojaeyeon/git/spring-study-example/assets/webpack-4.png)
+
+작성 전에 이와 같은 error 가 발생하면 preferences > Languages & Frameworks -> javascript 에서 버전을 ECMAScript 6로 바꿔준다.  
+
+
+
+```javascript
+export default function requestApi(){
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === xhr.DONE) {
+            if (xhr.status === 200 || xhr.status === 201) {
+                let node = document.createElement("p");
+                let successText = document.createTextNode(xhr.responseText);
+                node.appendChild(successText);
+                document.getElementById('webpackIsOk').appendChild(node);
+            } else {
+                console.error(xhr.responseText);
+            }
+        }
+    };
+    xhr.open('GET', '/api');
+    xhr.send(); // 요청 전송
+
+}
+```
+
+
+
+export 문법에 대해서는 다루지 않겠다. 간단히 얘기하면 이 js 파일은 requestApi를 default 모듈로서 내보낸다는 뜻이다. 
+
+
+
+**2) index.js 작성**
+
+**index.js**
+
+```javascript
+import  requestApi  from './requestApi';
+
+requestApi();
+```
+
+
+
+
+
+### 4. webpack.config.js 작성
+
+번들링의 기준이 되는 config 파일을 작성한다. 이 파일은 package.json 과 같은 라인에 있어야 한다.
+
+**webpack.config.js**
+
+```javascript
+const path = require('path');
+
+module.exports = {
+    entry:{
+        index : './src/main/resources/static/js/index.js',
+        requestApi: './src/main/resources/static/js/requestApi.js'
+    },
+    output: {
+        path: path.resolve(__dirname, 'src/main/resources/static/js/out'),
+        filename: '[name].bundle.js'
+    }
+};
+```
+
+
+
+entry는 내가 모듈로 번들링 할 최상위 js 파일을 의미한다. 여기서 지정한 'index'라는 키값은
+
+아래 ouput 안의 filename [name]안으로 바인딩 된다. 
+
+ouput > path 에는 출력될 위치를 지정해준다. 
+
+
+
+
+
+### 5. package.json 수정
+
+이제 설정이 끝났으니 모듈을 빌드해야한다. 
+
+package.json 의 script 속성에 다음을 추가한다. 
+
+```json
+"scripts": {
+    "dev": "webpack -w --mode development --devtool inline-source-map",
+    "start": "npm run dev"
+  }
+```
+
+~~(webpack-dev-server 명령어가 계속 안먹어서 결국 webpack 으로 ,,,)~~
+
+start 명령어를 수행하면 dev 명령어가 실행되니 이제 터미널에 **npm start** 를 입력해보자. 
+
+
+
+정상적으로 수행이 되었다면, 설정한 path 아래
+
+![image-20190714201127624](/Users/seojaeyeon/git/spring-study-example/assets/webpack-3.png)
+
+가 보인다. 이제 이 파일을 html에 include 시킨다. 
+
+```html
+<script type="text/javascript" th:src="@{/js/out/index.bundle.js}"></script>
+```
+
+이렇게!
+
+
+
+### 6. spring project 실행 후, 해당 웹페이지에 접속
+
+![image-20190714201442867](/Users/seojaeyeon/git/spring-study-example/assets/webpack-2.png)
+
+
+
+정상적으로 응답을 받아온다.
+
+혹시나 의심되니 index.js의 method 부분을 delete로 바꾸고 저장한다.
+
+-w로 watch 옵션을 주었기 때문에 중단하고 다시 npm start를 할 필요가 없다.
+
+**index.js**
+
+```javascript
+export default function requestApi(){
+
+    let xhr = new XMLHttpRequest();
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === xhr.DONE) {
+            if (xhr.status === 200 || xhr.status === 201) {
+
+            } else {
+                let node = document.createElement("p");
+                let successText = document.createTextNode(xhr.responseText);
+                node.appendChild(successText);
+                document.getElementById('webpackIsOk').appendChild(node);
+            }
+        }
+    };
+    xhr.open('DELETE', '/api');
+    xhr.send(); // 요청 전송
+
+}
+```
+
+![image-20190714201652164](/Users/seojaeyeon/git/spring-study-example/assets/webpack-1.png)
+
+
+
+
+
+
+
+
+
+------
+
+
+
+***마무리하며***
+
+나는 자바스크립트 개발자도아니기 때문에 사실 막 쉽지많은 않았고, 지금 이것도 완전히 이해하고 한 것이 아니다.
+
+하지만 spring boot 프로젝트에서 javascrip 정적소스들을 모듈링하여 쓸 수 있다는 것이 매력적이었고 앞으로 영원히 자바스크립트 안 할 것이 아니기 때문에(오히려 얼른 그쪽으로 넘어가고싶다 기회만 있다면..!) 더 공부하고 싶은 마음이 샘솟는다! 
+
+
+
+css, image 등 다른 static resources를 번들링하는 것은 뭔가 더 다른 과정이 필요한 듯 하니 더 공부해보아야겠다 
+
+
+
+오랜만의 포스팅 끝 :)
