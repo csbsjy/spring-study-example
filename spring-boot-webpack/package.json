@@ -1,0 +1,19 @@
+{
+  "name": "spring-boot-webpack",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "webpack-cli": "^3.3.5",
+    "webpack-dev-server": "^3.7.2"
+  },
+  "devDependencies": {
+    "webpack": "^4.35.3"
+  },
+  "scripts": {
+    "dev": "webpack -w --mode development --devtool inline-source-map",
+    "start": "npm run dev"
+  },
+  "author": "",
+  "license": "ISC"
+}
