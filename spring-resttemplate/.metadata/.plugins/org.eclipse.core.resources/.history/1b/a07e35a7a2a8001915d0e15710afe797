@@ -1,0 +1,33 @@
+package com.example.demo.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+@RestController
+public class APIController {
+	
+	//xml return
+	@GetMapping(value = "/xml", produces = "application/xml")
+	public XmlVo getXmlData() {
+		return new XmlVo();
+	}
+	
+	//json return
+	@GetMapping("/json")
+	public JsonVo getJsonData() {
+		return new JsonVo();
+	}
+	
+	//String return
+	@GetMapping("/string")
+	public String getStringData() {
+		return "String data!";
+	}
+	
+	//Object return
+	
+	//responseEntity return 
+}

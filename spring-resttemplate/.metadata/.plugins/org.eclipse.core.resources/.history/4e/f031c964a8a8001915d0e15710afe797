@@ -1,0 +1,33 @@
+package com.example.demo.service;
+
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.test.context.junit4.SpringRunner;
+
+import com.example.demo.vo.XmlVo;
+
+@SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner.class)
+public class RestTemplateServiceTest {
+
+	@Autowired
+	RestTemplateService restTemplateService;
+	
+	public void xml_요청_테스트() {
+		
+		//when
+		XmlVo xmlVo = restTemplateService.getXmlData();
+		
+		//then
+		assertThat(xmlVo.getType(), is("XML"));
+		assertThat(xmlVo.getMessage(), is("This is Xml Data!!"));
+	}
+
+}

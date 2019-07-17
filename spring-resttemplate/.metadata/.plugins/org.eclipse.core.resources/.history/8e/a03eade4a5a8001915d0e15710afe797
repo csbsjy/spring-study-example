@@ -1,0 +1,30 @@
+package com.example.demo.utils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+@Component
+public class RestTemplateUtil {
+	
+	private static RestTemplate restTemplate;
+	
+	@Autowired
+	public RestTemplateUtil(RestTemplate restTemplate) {
+		this.restTemplate=restTemplate;
+	}
+	
+	public static XmlVo getXmlRsponse(){
+		return restTemplate.getForObject("http://localhost:8080/xml", XmlVo.class);
+	}
+	
+	public static XmlVo getJsonRsponse(){
+		return restTemplate.getForObject("http://localhost:8080/json", JsonVo.class);
+	}
+}

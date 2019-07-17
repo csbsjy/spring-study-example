@@ -2,15 +2,18 @@
 
 
 
-> spring version: spring-boot 2.1.2<br/>
-> IDE: STS 4.1.2 for Eclipse <br/>
-> java version: 1.8.0_172
-
 
 * 2019-03-10 --- [HandlerMethodArgumentResolver](#handlermethodargumentresolver)
+
 * 2019-03-16 --- [Spring REST Docs](#spring-rest-docs)
+
 * 2019-06-09 --- [Multi-Module in Spring Project](#multi-module-in-spring-project)
+
 * 2019-07-14 --- [Webpack in Spring boot Project](#webpack)
+
+* 2019-07-17---[RestTemplate으로 통신하기 리뉴얼버전](#resttemplate)
+
+  
 
 ---
 
@@ -1463,3 +1466,379 @@ css, image 등 다른 static resources를 번들링하는 것은 뭔가 더 다�
 
 
 오랜만의 포스팅 끝 :)
+
+
+
+---
+
+# RestTemplate
+
+참고: https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/client/RestTemplate.html
+
+### RestTemplate 이란?
+
+```
+The RestTemplate offers templates for common scenarios by HTTP method, in addition to the generalized exchange and execute methods that support of less frequent cases.
+```
+
+- Spring 4.x 부터 지원하는 Spring의 HTTP 통신 템플릿
+- HTTP 요청 후 Json, xml, String 과 같은 응답을 받을 수 있는 템플릿
+- Blocking I/O 기반의 Synchronous API (비동기를 지원하는 AsyncRestTemplate 도 있음)
+- ResponseEntity와 Server to Server 통신하는데 자주 쓰임
+- 또는 Header, Content-Type등을 설정하여 외부 API 호출
+- Http request를 지원하는 HttpClient를 사용함
+
+###  
+
+### RestTemplate을 사용할 때 주의할 점
+
+> RestTemplate 은 기본적으로 conneciton pool을 사용하지 않기 때문에 매 요청마다 handshake를 수행한다. 이를 방지하기 위해 다음과 같은 설정을 추가한 Custom RestTemplate을 빈으로 등록하여 사용할 수 있다.
+
+```java
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class HttpConnectionConfig {
+
+    @Bean
+    public RestTemplate getCustomRestTemplate(){
+        HttpComponentsClientHttpRequestFactory httpRequestFactory = new HttpComponentsClientHttpRequestFactory();
+        httpRequestFactory.setConnectTimeout(2000);
+        httpRequestFactory.setReadTimeout(3000);
+        HttpClient httpClient = HttpClientBuilder.create()
+                .setMaxConnTotal(200)
+                .setMaxConnPerRoute(20)
+                .build();
+        httpRequestFactory.setHttpClient(httpClient);
+        return new RestTemplate(httpRequestFactory);
+    }
+
+}
+```
+
+
+
+
+
+httpClient를 사용하기 위해 아파치 의존을 추가해야 한다
+
+```xml
+<dependency>
+   <groupId>org.apache.httpcomponents</groupId>
+   <artifactId>httpclient</artifactId>
+   <version>4.5.9</version>
+</dependency>
+```
+
+
+
+
+
+**HttpComponentsClientHttpRequestFactory**
+
+```
+HttpClient를 사전구성 할 수 있는 메서드 제공
+```
+
+- public void setConnectTimeout(int timeout)
+- public void setConnectionRequestTimeout(int connectionRequestTimeout)
+- public void setReadTimeout(int timeout)
+- public void setBufferRequestBody(boolean bufferRequestBody): requestBody에 대해 버퍼링을 할지 하지 않을지. 공식 문서에 의하면, Default는 true이나 매우 큰 응답 바디가 들어오는 경우 false로 세팅하기를 권장한다.
+
+```java
+HttpClient에 connection pool 설정
+ HttpClient httpClient = HttpClientBuilder.create()
+                .setMaxConnTotal(200)
+                .setMaxConnPerRoute(20)
+                .build();
+```
+
+
+
+이 부분에 해당한다.
+MaxConnTotal이 connection pool의 갯수이고,
+MaxConnPerRoute는 IP, Port 하나 당 연결 제한 갯수이다.
+
+RestTemplate을 사용하기 위한 준비는 끝났고 주요 메소드는 다음과 같다.
+메소드 명으로도 알 수 있다시피 Restful을 준수하는 템플릿이다.
+
+### RestTemplate 주요메소드
+
+- execute
+- exchange
+- getForObject: get요청 후 응답은 Object로
+- getForEntity: get요청 후 응답은 Entity로
+- postForObject: post요청 후 응답은 Object로
+- putForObject
+- delete
+
+이 중 몇개만 골라서 예제를 작성해보았다.
+기회가되면 모든 메서드에 대한 예제를 작성해서 깃헙 업로드 ,,
+
+먼저 응답을 줄 가짜 api server를 다음과 같이 구성했다.
+
+```java
+package com.example.demo.controller;
+
+import javax.servlet.http.HttpServletRequest;
+
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+@RestController
+@Slf4j
+public class APIController {
+
+    //xml return
+    @GetMapping(value = "/xml", produces = "application/xml")
+    public XmlVo getXmlData() {
+        return new XmlVo();
+    }
+
+    //json return
+    @GetMapping("/json")
+    public JsonVo getJsonData() {
+        return new JsonVo();
+    }
+
+    //check header
+    @GetMapping("/entity")
+    public ResponseEntity<String> checkHeader(String name, HttpServletRequest httpServletRequest) {
+        log.info("Hello!!!!!!!! {}", name);
+        if(!httpServletRequest.getHeader("Authentication").equals("LEMON")) {
+            return new ResponseEntity<>("permission denied", HttpStatus.UNAUTHORIZED);
+        }
+        return new ResponseEntity<>("welcome!", HttpStatus.OK);
+    }
+
+    //post
+    @PostMapping("/post")
+    public ResponseEntity<String> postForEntity(String contents){
+        log.info("requestbody: {}", contents);
+        return new ResponseEntity<>("Success Response", HttpStatus.OK);
+    }
+}
+```
+
+getXmlData와 getJsonData는 getForObject 메서드를 통해 XML, JSON 모두 응답 받을 수 있는지 확인해 볼 것이다.
+checkHeader는 header와 parameter가 제대로 넘어가는지 exchange 메서드를 통해 확인한다.
+그리고 post 메서드도 한번 작성해 볼 것이다.
+
+
+
+
+
+**RestTemplateUtil.java**
+
+```java
+package com.example.demo.utils;
+
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+@Component
+public class RestTemplateUtil {
+
+    private static RestTemplate restTemplate;
+
+    @Autowired
+    public RestTemplateUtil(RestTemplate restTemplate) {
+        this.restTemplate=restTemplate;
+    }
+
+    public static XmlVo getXmlResponse(){
+        return restTemplate.getForObject("http://localhost:8080/xml", XmlVo.class);
+    }
+
+    public static JsonVo getJsonRsponse(){
+        return restTemplate.getForObject("http://localhost:8080/json", JsonVo.class);
+    }
+
+    public static ResponseEntity<String> getResponseEntity(String key){
+        //header setting
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authentication", key);
+
+
+        HttpEntity<Map<String, String>> httpEntity = new HttpEntity<>(headers);
+
+        Map<String, String> params = new HashMap<>();
+        params.put("name", "jaeyeon");
+
+        //순서대로 url, method, entity(header, params), return type
+        return restTemplate.exchange("http://localhost:8080/entity?name={name}", HttpMethod.GET, httpEntity, String.class, params);
+    }
+
+    public static ResponseEntity<String> post(){
+        return restTemplate.postForEntity("http://localhost:8080/post", "Post Request", String.class);
+    }
+}
+```
+
+
+
+
+
+**RestTemplateService.java**
+
+```java
+package com.example.demo.service;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+
+import com.example.demo.utils.RestTemplateUtil;
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+import lombok.extern.slf4j.Slf4j;
+
+@Service
+@Slf4j
+public class RestTemplateService {
+
+    public XmlVo getXmlData() {
+        return RestTemplateUtil.getXmlResponse();
+    }
+
+    public JsonVo getJsonData() {
+        return RestTemplateUtil.getJsonRsponse();
+    }
+
+    public ResponseEntity<String> getEntity(String key) {
+        return RestTemplateUtil.getResponseEntity(key);
+    }
+
+    public ResponseEntity<String> addData() {
+        return RestTemplateUtil.post();
+    }
+
+}
+```
+
+풀코드는 github에 업로드 하였다!
+
+
+
+
+
+**RestTemplateServiceTest.java**
+
+```java
+package com.example.demo.service;
+
+
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.client.HttpClientErrorException.Unauthorized;
+
+import com.example.demo.vo.JsonVo;
+import com.example.demo.vo.XmlVo;
+
+@SpringBootTest(webEnvironment=WebEnvironment.RANDOM_PORT)
+@RunWith(SpringRunner.class)
+public class RestTemplateServiceTest {
+
+    @Autowired
+    RestTemplateService restTemplateService;
+
+    @Test
+    public void xml_요청_테스트() {
+        //when
+        XmlVo xmlVo = restTemplateService.getXmlData();
+
+        //then
+        assertThat(xmlVo.getType(), is("XML"));
+        assertThat(xmlVo.getMessage(), is("This is Xml Data!!"));
+    }
+
+    @Test
+    public void json_요청_테스트() {
+        //when
+        JsonVo jsonVo= restTemplateService.getJsonData();
+
+        //then
+        assertThat(jsonVo.getType(), is("JSON"));
+        assertThat(jsonVo.getMessage(), is("This is Json Data!!"));
+
+    }
+
+    @Test
+    public void header_check_테스트_성공() {
+        //when
+        ResponseEntity<String> responseEntity= restTemplateService.getEntity("LEMON");
+
+        //then
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+
+    }
+
+    @Test(expected = Unauthorized.class)
+    public void header_check_테스트_실패_잘못된_인증키() {
+        //when
+        ResponseEntity<String> responseEntity= restTemplateService.getEntity("fail");
+
+        //then
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
+
+    }
+
+    @Test
+    public void post_테스트() {
+        //when
+        ResponseEntity<String> responseEntity= restTemplateService.addData();
+
+        //then
+        assertThat(responseEntity.getStatusCode(), is(HttpStatus.OK));
+
+    }
+}
+```
+
+
+
+
+
+
+
+테스트 결과 모두 정상적으로 성공한 것을 확인하였다! ResponseEntity와 더불어 Restful Api를 익히고 개발하는데 필수인 템플릿인 것 같다.
+특히 RestTemplateUtil 클래스는 앞으로도 많은 프로젝트에서 두고두고 쓰일 것 같으니 다듬고 또 다듬어야겠당 :)
+
+사실 굉장히 예전에 작성한 개판난장판인 글인데 Spring boot RestTemplate을 검색하니 거의 최상단에 떠서 당황스럽고 부끄럽기도 해서 다시 작성하는 글 ㅎㅅㅎ
