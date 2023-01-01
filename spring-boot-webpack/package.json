@@ -4,11 +4,11 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "webpack-cli": "^3.3.5",
+    "webpack-cli": "^5.0.1",
     "webpack-dev-server": "^3.7.2"
   },
   "devDependencies": {
-    "webpack": "^4.35.3"
+    "webpack": "^5.75.0"
   },
   "scripts": {
     "dev": "webpack -w --mode development --devtool inline-source-map",
